@@ -70,7 +70,25 @@
     <script>
         $(document).ready(function () {
             show_comment()
+            temp()
         });
+
+        function temp(){
+            $.ajax({
+                type: "GET",
+                url: "http://spartacodingclub.shop/sparta_api/weather/seoul",
+                data: {},
+                success: function (response) {
+                    let temp = response['temp']
+                    let temp_html = `<strong>${temp}</strong>`
+                    $('#temp').append(temp_html)
+                    }
+
+                }
+            )}
+        
+        
+
         function show_comment() {
             $.ajax({
                 type: "GET",
@@ -120,7 +138,7 @@
 <body>
     <div class="mypic">
         <h1>윤종신 팬명록</h1>
-        <p>현재기온: <span id="temp">36</span>도</p>
+        <p>현재기온: <span id="temp"></span>도</p>
     </div>
     <div class="mypost">
         <div class="form-floating mb-3">
