@@ -91,3 +91,13 @@
 
 - 되돌릴 커밋에서 branch를 생성하여, 해당 branch에서 작업 후, main branch와 병합, 충돌 해결.
 - 강제 푸시를 안해도 되지만, 트리가 다소 지저분해질 수 있음.
+
+#### (3) revert
+
+- 커밋을 보존한 채, 작업 내용만 되돌리는 기능.
+  - Gitbash: `git revert HEAD`
+  - Sourcetree: `현재 커밋 -> 마우스 우클릭 -> 커밋 되돌리기 클릭`
+- 장점: 커밋을 보존할 수 있다.
+- revert로 두 개 이상 커밋 되돌리기
+  - Gitbash: `git revert HEAD HEAD~1` (현재 커밋 + 그 이전 커밋까지 함께 revert)
+  - Sourcetree: ` 최신 순서대로 커밋을 revert`
