@@ -44,7 +44,7 @@
 ### 3) commit
 
 - 로컬 상에서 파일을 깃 폴더에 저장하는 기능.
-- commit한 모든 파일은
+- commit한 모든 파일은 다시 되돌아 갈 수 있음.
 
 ### 4) push
 
@@ -101,3 +101,20 @@
 - revert로 두 개 이상 커밋 되돌리기
   - Gitbash: `git revert HEAD HEAD~1` (현재 커밋 + 그 이전 커밋까지 함께 revert)
   - Sourcetree: ` 최신 순서대로 커밋을 revert`
+
+### 10) 커밋하지 않은 변경 사항이 있을 때, 다른 branch로 checkout하기
+
+#### (1) git commit --ammend 이용하기
+
+- branch1에서 작업이 완료되지 않은 파일을 임시로 commit.
+- brnach2로 체크아웃, branch2의 작업 완료하고 다시 branch1로 체크아웃.
+- 임시로 commit한 파일에서 작업 수정 후, git commit -ammend로 임시 커밋을 수정.
+  - Sourcetree 상에서 ammend는 커밋 창 -> 마지막 커밋 정정 실행.
+
+#### (2) stash 이용하기.
+
+- stash는 하나의 임시 공간임.
+- branch1에서 작업이 완료되지 않은 파일을 stash로 전송.
+- branch2로 체크아웃하여 작업 완료 후 branch1로 체크아웃.
+- stash에 전송한 파일을 적용하여 작업 완료 후 commit
+  \*\*\* git에 업로드한 적 없는 새 파일을 stash로 보내기 위해서는 해당 파일을 먼저 git add로 스테이지에 올려야함.
