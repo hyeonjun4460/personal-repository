@@ -111,7 +111,7 @@
 - 임시로 commit한 파일에서 작업 수정 후, git commit -ammend로 임시 커밋을 수정.
   - Sourcetree 상에서 ammend는 커밋 창 -> 마지막 커밋 정정 실행.
 
-#### (2) stash 이용하기.
+#### (2) stash 이용하기
 
 - stash는 하나의 임시 공간임.
 - branch1에서 작업이 완료되지 않은 파일을 stash로 전송.
