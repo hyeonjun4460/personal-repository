@@ -9,7 +9,9 @@
     <script type="text/javascript"
             src="//dapi.kakao.com/v2/maps/sdk.js?appkey=APIKEY&libraries=services,clusterer,drawing"></script>
     <script>
-        <!-- 지도 레벨 변경 버튼 구현-->
+        // 지도 구현
+
+        // 지도 레벨 컨트롤러 구현
         function plus() {
             var level = map.getLevel()
             map.setLevel(level + 1)
@@ -19,6 +21,10 @@
             var level = map.getLevel()
             map.setLevel(level - 1)
         }
+
+        //   클릭 시 특정 이벤트 발생 구현
+
+
     </script>
     <title>지도 연습</title>
     <link rel="stylesheet" href="/static/style.css">
@@ -29,23 +35,40 @@
     <div class="mapbox">
         <div class='map' id='map'>
             <script>
-               // 지도 구현
+                // 지도 구현
                 var container = document.getElementById('map'); //지도를 담을 영역의 ID
                 var options = { //지도를 생성할 때 필요한 기본 옵션
                     center: new kakao.maps.LatLng(37.554437850325, 126.94534358873), //지도의 중심좌표.
                     level: 5 //지도의 레벨(확대, 축소 정도)
                 };
-                //지도 레벨 컨트롤러 구현
-                var map = new kakao.maps.Map(container, options); //지도 생성 및 객체 리턴
-                var zoomControl = new kakao.maps.ZoomControl();
-                map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
-            </script>
+                var map = new kakao.maps.Map(container, options);
+            </script> <!-- 지도 구현 -->
         </div>
+        <!-- 지도 레벨 컨트롤러 구현 컨테이너      -->
         <div class="levelBtns">
-            <button onclick="minus()">+</button>
-            <button onclick="plus()">-</button>
+            <!--            span에 '+' 가 아니라 이미지를 넣으면 더 이뻐짐!-->
+            <span onclick="minus()">+</span>
+            <span onclick="plus()">-</span>
         </div>
+        <!-- 클릭 이벤트 구현 컨테이너 -->
+        <p class="result" id='result'>ㅇㅇㅇㅇ</p>
     </div>
 </main>
+<script>
+    //    마커 생성
+    var marker = new kakao.maps.Marker({
+        position: map.getCenter() // 마커 위치를 중심좌표로 지정
+    });
+    marker.setMap(map); // 지도에 마커를 표시합니다
+    //클릭 이벤트 구현: 마커 표시 + 위도/경도 표시
+    kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
+        // 클릭한 위도, 경도 정보를 가져옵니다
+        var latlng = mouseEvent.latLng; // 마우스 클릭 위치의 좌표 가져오기.
+        marker.setPosition(latlng) // 마커 위치를 마우스 클릭 위치로 지정
+        var message = '클릭한 위치의 위도는 ' + latlng.getLat() + '입니다.  ' + '경도는' + latlng.getLng() + '입니다.'
+        var resultDiv = document.getElementById('result'); // jqeury의 $('#id')과 동일한 문법.
+        resultDiv.innerHTML = message
+    })
+</script>
 </body>
 </html>
