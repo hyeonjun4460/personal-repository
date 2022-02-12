@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--    fontawesome cdn -->
+    <!-- 카카오지도 API 인증키, 웹 플랫폼 도메인 등록 필수 -->
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=bc88227ccc4a489780b79312d7c1cbb5"></script>
+
+    <!-- 지도 라이브러리 -->
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=APIKEY&libraries=services,clusterer,drawing"></script>
+    <script>
+        // 지도 레벨 컨트롤러 구현
+        function plus() {
+            var level = map.getLevel()
+            map.setLevel(level + 1)
+        }
+
+        function minus() {
+            var level = map.getLevel()
+            map.setLevel(level - 1)
+        }
+    </script>
+    <title>지도 연습</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href
+                  ="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src
+                    ="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Batang&family=Noto+Sans+KR:wght@300&display=swap"
+          rel="stylesheet">
+</head>
+<body>
+<header class="title">
+    <div class="titlebox">
+        <div class="cup">
+            <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="cup"
+                 viewBox="0 0 16 16">
+                <path d="M1 2a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1h.5A1.5 1.5 0 0 1 16 4.5v7a1.5 1.5 0 0 1-1.5 1.5h-.55a2.5 2.5 0 0 1-2.45 2h-8A2.5 2.5 0 0 1 1 12.5V2zm13 10h.5a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.5-.5H14v8zM13 2H2v10.5A1.5 1.5 0 0 0 3.5 14h8a1.5 1.5 0 0 0 1.5-1.5V2z"/>
+            </svg>
+        </div>
+        <p class="titlename">
+            지도 + 지역 검색 구현
+        </p>
+    </div>
+</header>
+<main>
+    <div class="mapbox">
+        <!--  지도 컨테이너      -->
+        <div class='map' id='map'>
+            <script>
+                var container = document.getElementById('map'); //지도를 담을 영역의 ID
+                var options = { //지도를 생성할 때 필요한 기본 옵션
+                    center: new kakao.maps.LatLng(37.554437850325, 126.94534358873), //지도의 중심좌표.
+                    level: 5 //지도의 레벨(확대, 축소 정도)
+                };
+                var map = new kakao.maps.Map(container, options);
+            </script>
+        </div>
+        <!-- 지도 레벨 컨트롤러 구현 컨테이너      -->
+        <div class="levelBtns">
+            <!-- span에 '+' 가 아니라 이미지를 넣으면 더 이뻐짐!-->
+            <span onclick="minus()">+</span>
+            <span onclick="plus()">-</span>
+        </div>
+        <!-- 클릭 이벤트 구현 컨테이너 -->
+        <div class="markerbtns">
+            <span class='btn' onclick="markeropen()">마커를 열어라</span>
+            <span class='btn' onclick="markerclose()">마커를 없애라</span>
+        </div>
+    </div>
+    </div>
+</main>
+<script>
+    // 지도 생성
+
+    var container = document.getElementById('map'); //지도를 담을 영역의 ID
+    var options = { //지도를 생성할 때 필요한 기본 옵션
+        center: new kakao.maps.LatLng(37.554437850325, 126.94534358873), //지도의 중심좌표.
+        level: 7 //지도의 레벨(확대, 축소 정도)
+    };
+    var map = new kakao.maps.Map(container, options);
+
+    //  1. 여러 마커 생성 및 컨트롤러 생성
+    //      1) 마커를 표시할 위치들을 객체로 생성
+    //      2) 반복문 이용해서 마커 생성
+    //      3) 마커들을 배열에 저장
+    //      4) 조건문 활용해서 마커 컨트롤러 생성
+    //  2. 각 마커 호버 시 인포윈도우 출력
+    //      1) 배열 조건문 안에서 마커, 인포윈도우 생성
+    //      2) 조건문 안에서 마우스오버/아웃 이벤트 + 클로저 생성
+    //      3) 클로저 이용해서 마커에 마우스 오버 시 인포윈도우 출력/제거 함수 생성
+    var position = [{
+        title: '거북이 카페',
+        latlng: new kakao.maps.LatLng(37.554437850325, 126.94534358873),
+        content: '<p>커피 존맛</p>'
+    },
+        {
+            title: '붕어 카페',
+            latlng: new kakao.maps.LatLng(37.564437850325, 126.95534358873),
+            content: '<p>커피 존맛, 바쁜 샌드위치 존맛</p>'
+        }
+    ]
+
+    var imgsrc = 'https://cdn-icons.flaticon.com/png/512/3361/premium/3361122.png?token=exp=1644644902~hmac=b50b196e7a1f47d9ef2ca8130e2da9f3'
+    var imgposition = new kakao.maps.Size(30, 30)
+    var imgOption = new kakao.maps.Point(15, 30)
+    var markerimage = new kakao.maps.MarkerImage(imgsrc, imgposition, imgOption)
+    var markerlist = []
+    for (let i = 0; i < position.length; i++) { // 마커 출력/제거, 마커에 마우스오버/아웃 시 인포윈도우 이벤트를 위한 세팅
+        var marker = new kakao.maps.Marker({
+            position: position[i].latlng,
+            title: position[i].title,
+            image: markerimage,
+        })
+        markerlist.push(marker) // 마커 출력/제거 버튼용
+        var infowindow = new kakao.maps.InfoWindow({
+            content: position[i].content
+        })
+        kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow)) // 마우스 오버 이벤트
+        kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow)) // 마우스 아웃 이벤트
+    }
+
+    function markeropen() {
+        for (var i = 0; i < markerlist.length; i++) {
+            markerlist[i].setMap(map)
+        }
+    } // 마커 뜨게 하는 이벤트
+
+
+    function markerclose() {
+        for (var i = 0; i < markerlist.length; i++) {
+            markerlist[i].setMap(null)
+        }
+    } // 마커 없애는 이벤트
+
+    function makeOverListener(map, marker, infowindow) {
+        return function () {
+            infowindow.open(map, marker)
+        }
+    } // 생성된 마커에 마우스 오버 시, 인포윈도우 출력 이벤트
+
+    function makeOutListener(infowindow) {
+        return function () {
+            infowindow.close()
+        }
+    } // 생성된 마커에 마우스 아웃 시, 인포윈도우 제거 이벤트
+
+
+</script>
+</body>
+</html>
