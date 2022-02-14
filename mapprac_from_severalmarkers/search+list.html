@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--    fontawesome cdn -->
+    <!-- 카카오지도 API 인증키, 웹 플랫폼 도메인 등록 필수 -->
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=bc88227ccc4a489780b79312d7c1cbb5&libraries=services,clusterer,drawing"></script>
+    <script>
+        // 지도 레벨 컨트롤러 구현
+        function plus() {
+            var level = map.getLevel()
+            map.setLevel(level + 1)
+        }
+
+        function minus() {
+            var level = map.getLevel()
+            map.setLevel(level - 1)
+        }
+    </script>
+    <title>지도 연습2</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href
+                  ="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src
+                    ="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Batang&family=Noto+Sans+KR:wght@300&display=swap"
+          rel="stylesheet">
+</head>
+<body>
+<div class="map_wrap">
+    <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
+
+    <div id="menu_wrap" class="bg_white">
+        <div class="option">
+            <div>
+                <form onsubmit="searchPlaces(); return false;">
+                    키워드 : <input type="text" value="이태원 맛집" id="keyword" size="15">
+                    <button type="submit">검색하기</button>
+                </form>
+            </div>
+        </div>
+        <hr>
+        <ul id="placesList"></ul>
+        <div id="pagination"></div>
+    </div>
+</div>
+<script>
+    //  키워드 검색 시, 목록 및 마커 표시 기능
+
+    // 마커를 담을 배열 변수 생성.
+    var markers = []
+    // 인포윈도우생성
+    var infowindow = new kakao.maps.InfoWindow()
+    // 지도를 생성합니다
+    var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+        mapOption = {
+            center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
+            level: 5 // 지도의 확대 레벨
+        };
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+
+    // 장소 검색 객체를 생성합니다
+    var ps = new kakao.maps.services.Places();
+
+    // 키워드로 장소를 검색 + 키워드 공란 시 alert
+    function searchPlaces() {
+        var keyword = document.getElementById('search').value
+        if (!keyword.replace(/^\s+|\s+$/g, '')) {
+            alert('키워드를 입력하세요.')
+            return false
+        }
+        ps.keywordSearch(keyword, placesSearchCB);
+    }
+
+
+    // 키워드 검색 완료 시 호출되는 콜백함수 입니다
+    function placesSearchCB(data, status, pagination) {
+        if (status === kakao.maps.services.Status.OK) {
+            displayPlaces(data)
+            displayPagination(pagination)
+
+        } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+            alert('검색 결과가 없습니다.')
+            return;
+        } else if (status === kakao.maps.services.Status.ERROR) {
+            alert(' 검색 중 오류가 발생했습니다.')
+            return
+        }
+    }
+
+    // 검색결과 목록과 마커 호출하는 함수.
+    function displayPlaces(places) {
+        var listEl = document.getElementById('lists')
+        var menuEl = document.getElementById('listwrap')
+        var fragment = document.createDocumentFragment() // Dom 객체 연산 최소화를 위한 코드.
+        var bounds = new kakao.maps.LatLngBounds()
+        var listStr = ''
+
+        // 검색 환경 리셋
+        removeAllChildNods(listEl); // 검색 결과 목록에 추가되는 항목 제거
+        removeMarker() // 마커 제거
+
+        for (var i = 0; i < places.length; i++) {
+            var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x) //검색 목록별 좌표
+            var marker = addMarker(placePosition, i)  // 검색 목록별 좌표에 마커 표시. addMarker 함수는 뒤에 선언되어 있음.
+            var itemEl = getListItem(i, places[i]) // 검색 목록별 element 및 검색 목록 번호를 가져오기. getListItem 함수는 뒤에 선언되어 있음.
+            bounds.extend(placePosition) // 검색한 위치좌표를 LatLngBounds 객체에 추가.
+
+                //  마커, 검색목록에 마우스 오버 시, 인포윈도우에 해당 장소명 표시. 마우스 아웃 시 제거
+                (function (marker, title) {
+                    kakao.maps.event.addListener(marker, 'mouseover', function () {
+                        displayInfowindow(marker, title)
+                    })
+
+                    kakao.maps.event.addListener(marker, 'mouseout', function () {
+                        infowindow.close()
+                    })
+                    itemEl.onmouseover = function () {
+                        displayInfowindow(marker, title)
+                    }
+                    itemEl.onmouseout = function () {
+                        infowindow.close()
+                    }
+                })(marker, places[i].place_name) // (function(marker,title)에서 받는 인자를 의미.
+            fragment.appendChild(itemEl) // fragment에 itemEl 객체를 추가.
+        }
+        listEl.appendChild(fragment) // 목록 리스트 tag에 itemEl 객체를 추가
+        menuEl.scrollTop = 0; // 메뉴 스크롤의 위치를 위로 고정
+        map.setBounds(bounds) // 지도 범위를 bounds로 변경
+
+    }
+
+
+    // 검색 결과 목록을 element로 변환하는 함수. itemEl에 할당됨.
+    function getListItem(index, places) {
+        var el = document.createElement('li'),
+            itemStr = '<span>' + places.road_address_name + '</span>' +
+                '   <span class="jibun gray">' + places.address_name + '</span>'
+        itemStr += '  <span class="tel">' + places.phone + '</span>' +
+            '</div>';
+
+        el.innerHTML(itemStr)
+        el.className = 'item'
+        return el;
+    }
+
+    // 마커 생성 및 표시
+    function addMarker(position, idx, title) {
+        var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png', // 마커 이미지 url, 스프라이트 이미지를 씁니다
+            imageSize = new kakao.maps.Size(36, 37),  // 마커 이미지의 크기
+            imgOptions = {
+                spriteSize: new kakao.maps.Size(36, 691), // 스프라이트 이미지의 크기
+                spriteOrigin: new kakao.maps.Point(0, (idx * 46) + 10), // 스프라이트 이미지 중 사용할 영역의 좌상단 좌표
+                offset: new kakao.maps.Point(13, 37) // 마커 좌표에 일치시킬 이미지 내에서의 좌표
+            },
+            markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imgOptions),
+            marker = new kakao.maps.Marker({
+                position: position, // 마커의 위치
+                image: markerImage
+            });
+
+        marker.setMap(map); // 지도 위에 마커를 표출합니다
+        markers.push(marker);  // 배열에 생성된 마커를 추가합니다
+
+        return marker;
+    }
+
+    // 마커 제거 함수
+    function removeMarker() {
+        for (var i = 0; i < markers.length; i++) {
+            markers[i].setMap(null);
+        }
+        markers = [];
+    }
+
+
+</script>
+</body>
+</html>
