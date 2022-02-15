@@ -21,33 +21,36 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
 
-<!--        특정 장소 검색 시, 장소명, 장소의 좌표를 리스트에 딕셔너리 형태로 저장하기.-->
-        example = []
-        $.ajax({
-                type: "GET",
-                url: "https://dapi.kakao.com/v2/local/search/keyword",
-                data: {
-                    query: '강남역 카페'
-                },
-                headers: {Authorization: 'KakaoAK e0a7933ed8d3e52e48f47999a8528bc7'},
-                success: function (response) {
-                    let rows = response['documents']
-                    for (let i = 0; i < rows.length; i++) {
-                        let index_x = rows[i].x
-                        let index_y = rows[i].y
-                        let placeName = rows[i].place_name
-                        example.push({
-                            'placename': placeName,
-                            'x': index_x,
-                            'y': index_y
-                        })
+        let example = []
+        function searchs() {
+            let search = $('#search').val()
+            $.ajax({
+                    type: "GET",
+                    url: "https://dapi.kakao.com/v2/local/search/keyword",
+                    data: {
+                        query: search
+                    },
+                    headers: {Authorization: 'KakaoAK e0a7933ed8d3e52e48f47999a8528bc7'},
+                    success: function (response) {
+                        let rows = response['documents']
+                        for (let i = 0; i < rows.length; i++) {
+                            let index_x = rows[i].x
+                            let index_y = rows[i].y
+                            let placeName = rows[i].place_name
+                            example.push({
+                                'region': search,
+                                'placename': placeName,
+                                'x': index_x,
+                                'y': index_y,
+                                'latlng': new kakao.maps.LatLng(index_y, index_x)
+                            }) // 마커 생성시에 필요한 데이터들을 api에서 수집한 내용을 편집해서 example에 넣기.
 
+                        }
+                        return example // 반복문 안에서 console.log(example) 하면 이상한 배열이 나옴.
                     }
-                    console.log(example)
-
                 }
-            }
-        )
+            )
+        }
     </script>
 </head>
 <body>
@@ -78,6 +81,7 @@
             <form onsubmit="searchbtn(); return false">
                 <input type="text" id='search' value="">
                 <button class='searchbtn'>검색</button>
+                <button class='showmarker' onclick="showmarker()">카페 보기</button>
             </form>
 
         </div>
@@ -96,11 +100,13 @@
     // 장소 검색 객체를 생성합니다
     var ps = new kakao.maps.services.Places();
 
-    // 키워드로 장소를 검색합니다
+    // 키워드로 위치 검색 (placeSearchCD) + 키워드 관련 장소 목록 수집해서 example에 할당(search())
     function searchbtn() {
         ps.keywordSearch(document.getElementById('search').value, placesSearchCB);
+        searchs()
     }
 
+    // 장소 검색 시,
     function placesSearchCB(data, status, pagination) {
         if (status === kakao.maps.services.Status.OK) {
 
@@ -114,41 +120,33 @@
             // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
             map.setBounds(bounds);
             map.setLevel(4)
-            showmarker()
         }
     }
 
-    //위도, 경도 정보 가져오기
-    kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
-        var latlng = mouseEvent.latLng; // 마우스 클릭 위치의 좌표 가져오기.
-        var message = latlng.getLat() + '이고.  ' + '         경도는' + latlng.getLng() + '입니다.'
-        var resultDiv = document.getElementById('result'); // jqeury의 $('#id')과 동일한 문법.
-        resultDiv.innerHTML = message
-    })
 
-    // 마커 표시 예제
-    var position = [
-        {latlng: new kakao.maps.LatLng(37.5567807307155, 126.93606723383607)},
-        {latlng: new kakao.maps.LatLng(37.556790826183544, 126.93810438192561)},
-        {latlng: new kakao.maps.LatLng(37.55718590242637, 126.93555759580906)}
-    ]
-
+    // 마커 이미지 설정
     var imgsrc = 'https://cdn-icons.flaticon.com/png/512/3361/premium/3361122.png?token=exp=1644644902~hmac=b50b196e7a1f47d9ef2ca8130e2da9f3'
     var imgsize = new kakao.maps.Size(30, 30)
     var imgOption = new kakao.maps.Point(15, 30)
     var markerimage = new kakao.maps.MarkerImage(imgsrc, imgsize, imgOption)
 
-    // 버튼 클릭 시 마커 생성 및 표시
+    // api에서 받아온 데이터를 편집한 example[]을 활용해서 마커 생성.
+    // position 값 할당해줄 때, value값이 전달될 수 있도록 객체 값 정리를 깔끔하게 해야함.
     function showmarker() {
-        for (i = 0; i < position.length; i++) {
+        for (let i = 0; i < example.length; i++) {
+            let rows = example[i]
+            let x = rows['x']
+            let y = rows['y']
+            let title = rows['placename']
             var marker = new kakao.maps.Marker({
-                map: map,
-                position: position[i].latlng,
-                image: markerimage
+                position: rows['latlng'],
+                image: markerimage,
+                title: title
             })
             marker.setMap(map)
         }
     }
+
 
 
 </script>
