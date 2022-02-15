@@ -1,0 +1,61 @@
+.title{
+    background-color: black;
+    color: whitesmoke;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.titlebox{
+    display: flex;
+    align-items: center;
+}
+
+.titlebox > p{
+    font-size: 50px;
+}
+
+.titlebox > .cup{
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+main{
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.wrap{
+    border: 1px solid black;
+    width: 1000px;
+    height: 500px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    text-align: center;
+    padding-bottom: 50px;
+}
+
+.map{
+    width: 500px;
+    height: 400px;
+    margin: 10px 20px;
+    border: 1px solid black;
+}
+
+.others{
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+
+.others > button{
+    margin-right: 10px;
+}
+
+.searchbar{
+    border: 1px solid black;
+    margin-top: 10px;
+    padding: 10px;
+}

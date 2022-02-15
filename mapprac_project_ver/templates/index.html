@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--    fontawesome cdn -->
+    <!-- 카카오지도 API 인증키, 웹 플랫폼 도메인 등록 필수 -->
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=bc88227ccc4a489780b79312d7c1cbb5&libraries=services,clusterer,drawing"></script>
+    <title>지도 연습</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href
+                  ="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src
+                    ="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Batang&family=Noto+Sans+KR:wght@300&display=swap"
+          rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+
+        example = []
+        $.ajax({
+                type: "GET",
+                url: "https://dapi.kakao.com/v2/local/search/keyword",
+                data: {
+                    query: '강남역 카페'
+                },
+                headers: {Authorization: 'KakaoAK e0a7933ed8d3e52e48f47999a8528bc7'},
+                success: function (response) {
+                    let rows = response['documents']
+                    for (let i = 0; i < rows.length; i++) {
+                        let index_x = rows[i].x
+                        let index_y = rows[i].y
+                        let placeName = rows[i].place_name
+                        example.push({
+                            'placename': placeName,
+                            'x': index_x,
+                            'y': index_y
+                        })
+
+                    }
+                    console.log(example)
+
+                }
+            }
+        )
+    </script>
+</head>
+<body>
+<header class="title">
+    <div class="titlebox">
+        <div class="cup">
+            <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="cup"
+                 viewBox="0 0 16 16">
+                <path d="M1 2a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1h.5A1.5 1.5 0 0 1 16 4.5v7a1.5 1.5 0 0 1-1.5 1.5h-.55a2.5 2.5 0 0 1-2.45 2h-8A2.5 2.5 0 0 1 1 12.5V2zm13 10h.5a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.5-.5H14v8zM13 2H2v10.5A1.5 1.5 0 0 0 3.5 14h8a1.5 1.5 0 0 0 1.5-1.5V2z"/>
+            </svg>
+        </div>
+        <p class="titlename">
+            지도 + 지역 검색 구현
+        </p>
+    </div>
+</header>
+<main>
+    <div class="wrap">
+        <div class="mapbox">
+            <!--  지도 컨테이너      -->
+            <div class='map' id='map'>
+            </div>
+            <div class="others">
+                <p class="result" id='result'>지도 상에서 마우스 클릭 시, 위도와 경도가 표시 됩니다.</p>
+            </div>
+        </div>
+        <div class="searchbar">
+            <form onsubmit="searchbtn(); return false">
+                <input type="text" id='search' value="">
+                <button class='searchbtn'>검색</button>
+            </form>
+
+        </div>
+    </div>
+</main>
+<script>
+    //  여러 마커 생성 이벤트2: 마우스 오버 시 마커 사이즈 확장 + 클릭 시 마커 색상 및 사이즈 변경
+    // 지도를 생성합니다
+    var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+        mapOption = {
+            center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
+            level: 5 // 지도의 확대 레벨
+        };
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+
+    // 장소 검색 객체를 생성합니다
+    var ps = new kakao.maps.services.Places();
+
+    // 키워드로 장소를 검색합니다
+    function searchbtn() {
+        ps.keywordSearch(document.getElementById('search').value, placesSearchCB);
+    }
+
+    function placesSearchCB(data, status, pagination) {
+        if (status === kakao.maps.services.Status.OK) {
+
+            // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
+            // LatLngBounds 객체에 좌표를 추가합니다
+            var bounds = new kakao.maps.LatLngBounds();
+
+            bounds.extend(new kakao.maps.LatLng(data[0].y, data[0].x));
+
+
+            // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+            map.setBounds(bounds);
+            map.setLevel(4)
+            showmarker()
+        }
+    }
+
+    //위도, 경도 정보 가져오기
+    kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
+        var latlng = mouseEvent.latLng; // 마우스 클릭 위치의 좌표 가져오기.
+        var message = latlng.getLat() + '이고.  ' + '         경도는' + latlng.getLng() + '입니다.'
+        var resultDiv = document.getElementById('result'); // jqeury의 $('#id')과 동일한 문법.
+        resultDiv.innerHTML = message
+    })
+
+    // 마커 표시 예제
+    var position = [
+        {latlng: new kakao.maps.LatLng(37.5567807307155, 126.93606723383607)},
+        {latlng: new kakao.maps.LatLng(37.556790826183544, 126.93810438192561)},
+        {latlng: new kakao.maps.LatLng(37.55718590242637, 126.93555759580906)}
+    ]
+
+    var imgsrc = 'https://cdn-icons.flaticon.com/png/512/3361/premium/3361122.png?token=exp=1644644902~hmac=b50b196e7a1f47d9ef2ca8130e2da9f3'
+    var imgsize = new kakao.maps.Size(30, 30)
+    var imgOption = new kakao.maps.Point(15, 30)
+    var markerimage = new kakao.maps.MarkerImage(imgsrc, imgsize, imgOption)
+
+    // 버튼 클릭 시 마커 생성 및 표시
+    function showmarker() {
+        for (i = 0; i < position.length; i++) {
+            var marker = new kakao.maps.Marker({
+                map: map,
+                position: position[i].latlng,
+                image: markerimage
+            })
+            marker.setMap(map)
+        }
+    }
+
+
+</script>
+</body>
+</html>
+
+
+<!--검색 시 지역 위치 넘기기 -->
+<!-- 검색어가 없을 시, 검색어를 입력하세오 alert-->
+<!-- 검색 완료 시, 마커 바로 보이기-->
+<!-- 검색 완료 시, 검색 목록 뜨게 하기 jquery를 이용하면 안될까?-->
+<!-- 검색 완료 후, 마커에 마우스 오버 시 인포윈도우 뜨게 하기-->
