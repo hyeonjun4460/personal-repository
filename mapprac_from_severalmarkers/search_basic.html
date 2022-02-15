@@ -125,7 +125,7 @@
 
     // 버튼 클릭 시 마커 생성 및 표시
     function showmarker() {
-        for (i = 0; i < position.length; i++) {
+        for (let i = 0; i < position.length; i++) {
             var marker = new kakao.maps.Marker({
                 map: map,
                 position: position[i].latlng,
