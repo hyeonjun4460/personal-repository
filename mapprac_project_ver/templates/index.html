@@ -21,7 +21,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
 
+        <!--    마커, 인포윈도우, 검색목록 옵션을 가질 객체 생성-->
         let example = []
+
+        // 특정 지역의 장소 데이터를 카카오검색api를 통해 수집 및 객체 example에 할당하고 return
         function searchs() {
             let search = $('#search').val()
             $.ajax({
@@ -37,14 +40,15 @@
                             let index_x = rows[i].x
                             let index_y = rows[i].y
                             let placeName = rows[i].place_name
+                            let phonenum = rows[i].phone
+                            let address = rows[i].road_address_name
                             example.push({
                                 'region': search,
                                 'placename': placeName,
-                                'x': index_x,
-                                'y': index_y,
-                                'latlng': new kakao.maps.LatLng(index_y, index_x)
+                                'latlng': new kakao.maps.LatLng(index_y, index_x),
+                                'phone': phonenum,
+                                'address': address
                             }) // 마커 생성시에 필요한 데이터들을 api에서 수집한 내용을 편집해서 example에 넣기.
-
                         }
                         return example // 반복문 안에서 console.log(example) 하면 이상한 배열이 나옴.
                     }
@@ -73,9 +77,6 @@
             <!--  지도 컨테이너      -->
             <div class='map' id='map'>
             </div>
-            <div class="others">
-                <p class="result" id='result'>지도 상에서 마우스 클릭 시, 위도와 경도가 표시 됩니다.</p>
-            </div>
         </div>
         <div class="searchbar">
             <form onsubmit="searchbtn(); return false">
@@ -83,6 +84,8 @@
                 <button class='searchbtn'>검색</button>
                 <button class='showmarker' onclick="showmarker()">카페 보기</button>
             </form>
+            <div id='placelist' class="placelist">
+            </div>
 
         </div>
     </div>
@@ -102,12 +105,16 @@
 
     // 키워드로 위치 검색 (placeSearchCD) + 키워드 관련 장소 목록 수집해서 example에 할당(search())
     function searchbtn() {
+        if (!document.getElementById('search').value.replace(/^\s+|\s+$/g, '')) {
+            alert('키워드를 입력해주세요!');
+            return false;
+        }
         ps.keywordSearch(document.getElementById('search').value, placesSearchCB);
-        searchs()
     }
 
     // 장소 검색 시,
     function placesSearchCB(data, status, pagination) {
+        searchs() // 카카오검색 api에서 검색된 지역의 카페의 좌표, 장소명 정보를 가져오는 함수
         if (status === kakao.maps.services.Status.OK) {
 
             // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
@@ -130,7 +137,10 @@
     var imgOption = new kakao.maps.Point(15, 30)
     var markerimage = new kakao.maps.MarkerImage(imgsrc, imgsize, imgOption)
 
+
     // api에서 받아온 데이터를 편집한 example[]을 활용해서 마커 생성.
+    // example[] 활용해서 각 좌표의 장소명에 대한 infowindow 생성
+    // 마우스 오버 시, 인포 윈도우 표시
     // position 값 할당해줄 때, value값이 전달될 수 있도록 객체 값 정리를 깔끔하게 해야함.
     function showmarker() {
         for (let i = 0; i < example.length; i++) {
@@ -138,15 +148,51 @@
             let x = rows['x']
             let y = rows['y']
             let title = rows['placename']
+            let phonenum = rows['phone']
+            let address = rows['address']
             var marker = new kakao.maps.Marker({
                 position: rows['latlng'],
                 image: markerimage,
-                title: title
+            })
+            var iwcontents = '<div class = "contentbox">' + '<p class=" small">' + title  +'</p>' + '<p class=" small">' + phonenum  + '</p>' + '<p class=" small">' + address + '</p>' + '</div>'
+            var infowindow = new kakao.maps.InfoWindow({
+                content: iwcontents
             })
             marker.setMap(map)
+            kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow)) // for문을 닫고 infowindow 호출 함수를 작성해야, 모든 장소명이 잘 나타남.
+            kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow))
+        }
+        function makeOverListener(map, marker, infowindow) {
+            return function () {
+                infowindow.open(map, marker)
+            }
+        }
+        function makeOutListener(infowindow) {
+            return function () {
+                infowindow.close()
+            }
+        }
+        showplacelist() // 검색목록 생성 및 표출 함수
+    }
+
+
+    // example의 데이터를 받아와서 검색목록의 정보 생성
+    function showplacelist(){
+        for (let i = 0; i < example.length; i++){
+            let rows = example[i]
+            let phonenum = rows['phone']
+            let address = rows['address']
+            let placename = rows['placename']
+            let temp_html = `<p>1. 장소명: ${placename}</p>
+<p>2. 주소: ${address}</p>
+<p>3. 연락처: ${phonenum}</p>`
+            console.log(temp_html)
+            $('#placelist').append(temp_html)
         }
     }
 
+
+    //    검색 완료 시 검색 목록 뜨게 하기
 
 
 </script>
@@ -159,3 +205,10 @@
 <!-- 검색 완료 시, 마커 바로 보이기-->
 <!-- 검색 완료 시, 검색 목록 뜨게 하기 jquery를 이용하면 안될까?-->
 <!-- 검색 완료 후, 마커에 마우스 오버 시 인포윈도우 뜨게 하기-->
+
+<!--    function displayInfowindow(marker, title) {-->
+<!--        var content = '<div style="padding:5px;z-index:1;">' + title + '</div>';-->
+
+<!--        infowindow.setContent(content);-->
+<!--        infowindow.open(map, marker);-->
+<!--    }-->
