@@ -77,6 +77,8 @@
             <!--  지도 컨테이너      -->
             <div class='map' id='map'>
             </div>
+            <button onclick="removemarker()">마커 지우기</button>
+            <button onclick="removelists()">리스트 지우기</button>
         </div>
         <div class="searchbar">
             <form onsubmit="searchbtn(); return false">
@@ -128,26 +130,24 @@
     function placesSearchCB(data, status, pagination) {
         searchs() // 카카오검색 api에서 검색된 지역의 카페의 좌표, 장소명 정보를 가져오는 함수
         if (status === kakao.maps.services.Status.OK) {
-
             // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
             // LatLngBounds 객체에 좌표를 추가합니다
             var bounds = new kakao.maps.LatLngBounds();
-
             bounds.extend(new kakao.maps.LatLng(data[0].y, data[0].x));
-
-
             // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
             map.setBounds(bounds);
             map.setLevel(4)
+
         }
     }
-
 
     // 마커 이미지 설정
     var imgsrc = 'https://cdn-icons.flaticon.com/png/512/3361/premium/3361122.png?token=exp=1644644902~hmac=b50b196e7a1f47d9ef2ca8130e2da9f3'
     var imgsize = new kakao.maps.Size(30, 30)
     var imgOption = new kakao.maps.Point(15, 30)
     var markerimage = new kakao.maps.MarkerImage(imgsrc, imgsize, imgOption)
+    var markers = []
+    var infowindows = []
 
 
     // api에서 받아온 데이터를 편집한 example[]을 활용해서 마커 생성.
@@ -173,6 +173,8 @@
             marker.setMap(map)
             kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow)) // for문을 닫고 infowindow 호출 함수를 작성해야, 모든 장소명이 잘 나타남.
             kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow))
+            markers.push(marker)
+            infowindows.push(infowindow)
         }
 
         function makeOverListener(map, marker, infowindow) {
@@ -188,27 +190,46 @@
         }
 
         showplacelist() // 검색목록 생성 및 표출 함수
+        return markers, infowindows
     }
-
 
     // example의 데이터를 받아와서 검색목록의 정보 생성
     function showplacelist() {
+
         for (let i = 0; i < example.length; i++) {
             let rows = example[i]
             let phonenum = rows['phone']
             let address = rows['address']
             let placename = rows['placename']
-            let temp_html = `<tr>
-                                <td>${placename}</td>
+            let temp_html = `<tr id = 'itemclick'>
+                                <td id = 'cafename'>${placename}</td>
                                 <td>${phonenum}</td>
                                 <td class="addressbox">${address}</td>
                             </tr>`
             $('#placeitems').append(temp_html)
         }
+        return temp_html
     }
 
-//   카페 보기 버튼 누르면, 기존에 있던 마커와 검색목록 삭제
-//    카페명 오버 시, 인포윈도우 표시하기 or 카페명 클릭 시, 마커 크기 확장 + 인포윈도우 표출
+
+    // 검색목록 제거 기능
+    function removelists() {
+        $('#placeitems').empty()
+    }
+
+    // 마커 제거 기능
+    function removemarker() {
+        for (let i = 0; i < markers.length; i++) {
+            let a = markers[i].setMap(map)
+            if (a === true) {
+                markers[i].setMap(null)
+            }
+        }
+        markers = []
+    }
+
+    //   지역 검색 버튼 누르면, 기존에 있던 마커와 검색목록 삭제
+    //    카페명 오버 시, 인포윈도우 표시하기 or 카페명 클릭 시, 마커 크기 확장 + 인포윈도우 표출
 </script>
 </body>
 </html>

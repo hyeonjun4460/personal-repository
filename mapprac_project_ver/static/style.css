@@ -90,3 +90,7 @@ main{
 .addressbox{
     padding-right: 100px;
 }
+
+#itemclick{
+    cursor: pointer;
+}
