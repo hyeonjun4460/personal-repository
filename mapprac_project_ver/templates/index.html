@@ -67,7 +67,7 @@
             </svg>
         </div>
         <p class="titlename">
-            지도 + 지역 검색 구현
+            빠른 커피
         </p>
     </div>
 </header>
@@ -85,6 +85,18 @@
                 <button class='showmarker' onclick="showmarker()">카페 보기</button>
             </form>
             <div id='placelist' class="placelist">
+                <table class='table'>
+                    <thead>
+                    <tr>
+                        <td>카페명</td>
+                        <td>연락처</td>
+                        <td>주소</td>
+                    </tr>
+                    </thead>
+                    <tbody id="placeitems">
+
+                    </tbody>
+                </table>
             </div>
 
         </div>
@@ -154,7 +166,7 @@
                 position: rows['latlng'],
                 image: markerimage,
             })
-            var iwcontents = '<div class = "contentbox">' + '<p class=" small">' + title  +'</p>' + '<p class=" small">' + phonenum  + '</p>' + '<p class=" small">' + address + '</p>' + '</div>'
+            var iwcontents = '<div class = "contentbox">' + '<p class=" small">' + title + '</p>' + '<p class=" small">' + phonenum + '</p>' + '<p class=" small">' + address + '</p>' + '</div>'
             var infowindow = new kakao.maps.InfoWindow({
                 content: iwcontents
             })
@@ -162,53 +174,42 @@
             kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow)) // for문을 닫고 infowindow 호출 함수를 작성해야, 모든 장소명이 잘 나타남.
             kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow))
         }
+
         function makeOverListener(map, marker, infowindow) {
             return function () {
                 infowindow.open(map, marker)
             }
         }
+
         function makeOutListener(infowindow) {
             return function () {
                 infowindow.close()
             }
         }
+
         showplacelist() // 검색목록 생성 및 표출 함수
     }
 
 
     // example의 데이터를 받아와서 검색목록의 정보 생성
-    function showplacelist(){
-        for (let i = 0; i < example.length; i++){
+    function showplacelist() {
+        for (let i = 0; i < example.length; i++) {
             let rows = example[i]
             let phonenum = rows['phone']
             let address = rows['address']
             let placename = rows['placename']
-            let temp_html = `<p>1. 장소명: ${placename}</p>
-<p>2. 주소: ${address}</p>
-<p>3. 연락처: ${phonenum}</p>`
-            console.log(temp_html)
-            $('#placelist').append(temp_html)
+            let temp_html = `<tr>
+                                <td>${placename}</td>
+                                <td>${phonenum}</td>
+                                <td class="addressbox">${address}</td>
+                            </tr>`
+            $('#placeitems').append(temp_html)
         }
     }
 
-
-    //    검색 완료 시 검색 목록 뜨게 하기
-
-
+//   카페 보기 버튼 누르면, 기존에 있던 마커와 검색목록 삭제
+//    카페명 오버 시, 인포윈도우 표시하기 or 카페명 클릭 시, 마커 크기 확장 + 인포윈도우 표출
 </script>
 </body>
 </html>
 
-
-<!--검색 시 지역 위치 넘기기 -->
-<!-- 검색어가 없을 시, 검색어를 입력하세오 alert-->
-<!-- 검색 완료 시, 마커 바로 보이기-->
-<!-- 검색 완료 시, 검색 목록 뜨게 하기 jquery를 이용하면 안될까?-->
-<!-- 검색 완료 후, 마커에 마우스 오버 시 인포윈도우 뜨게 하기-->
-
-<!--    function displayInfowindow(marker, title) {-->
-<!--        var content = '<div style="padding:5px;z-index:1;">' + title + '</div>';-->
-
-<!--        infowindow.setContent(content);-->
-<!--        infowindow.open(map, marker);-->
-<!--    }-->

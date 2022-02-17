@@ -1,23 +1,26 @@
 .title{
-    background-color: black;
+    background-color: chocolate;
     color: whitesmoke;
     display: flex;
     justify-content: center;
     text-align: center;
+    padding: 10px 0;
+
 }
 
 .titlebox{
     display: flex;
     align-items: center;
+    text-align: center;
 }
 
 .titlebox > p{
-    font-size: 50px;
+    font-size: 40px;
+    margin-bottom: 0;
 }
 
 .titlebox > .cup{
     margin-right: 10px;
-    margin-bottom: 10px;
 }
 
 main{
@@ -58,4 +61,32 @@ main{
     border: 1px solid black;
     margin-top: 10px;
     padding: 10px;
+}
+
+.contentbox{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.small{
+    size: 3px;
+    margin: 0;
+    padding-right: 5px;
+
+}
+
+#placelist{
+    height: 400px;
+    overflow: scroll;
+    margin-top: 5px;
+}
+
+.table{
+    border: 1px solid black;
+    font-size: 8px;
+}
+
+.addressbox{
+    padding-right: 100px;
 }
