@@ -2,17 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=bc88227ccc4a489780b79312d7c1cbb5&libraries=services,clusterer,drawing"></script>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href
+                  ="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    <script src
+                    ="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Batang&family=Noto+Sans+KR:wght@300&display=swap"
+          rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <title>Title</title>
     <script>
+        <!--     메뉴, 가격 크롤링 데이터 가져오기. 추가적인 기능이 필요할 시, 함수를 구현해두고 ajax 안에서 구현해야함.  -->
+
+        let sample = []
+        let example = []
 
         function save_order() {
             let search = $('#search').val()
@@ -20,15 +31,68 @@
                 type: 'POST',
                 url: '/data',
                 data: {
-                    search_give: search
+                    'search_give': search
                 },
                 success: function (response) {
-                    console.log(response)
+                    let rows = response['data']
+                    for (let i = 0; i < rows.length; i++) {
+                        let menu = rows[i][0]
+                        let price = rows[i][1]
+                        let temp_html = `<p>${menu}와${price}</p>`
+                        sample.push({'menu': menu, 'price': price, 'content': temp_html})
+                    }
+                    return sample
                 }
             })
-
+            search_kakao()
         }
 
+        function search_kakao() {
+            let search = $('#search').val()
+            $.ajax({
+                type: "GET",
+                url: "https://dapi.kakao.com/v2/local/search/keyword",
+                data: {
+                    query: search
+                },
+                headers: {Authorization: 'KakaoAK e0a7933ed8d3e52e48f47999a8528bc7'},
+                success: function (response) {
+                    let rows = response['documents']
+                    for (let i = 0; i < rows.length; i++) {
+                        let index_x = rows[i].x
+                        let index_y = rows[i].y
+                        let placeName = rows[i].place_name
+                        let phonenum = rows[i].phone
+                        let address = rows[i].road_address_name
+                        let temp_html = `<tr id = 'clickbutton'>
+                                <td id = 'cafename'>${placeName}</td>
+                                <td>${phonenum}</td>
+                                <td class="addressbox">${address}</td>
+                            </tr>`
+
+                       example.push({
+                            'region': search,
+                            'placename': placeName,
+                            'latlng': new kakao.maps.LatLng(index_y, index_x),
+                            'phone': phonenum,
+                            'address': address,
+                            'listitems': temp_html
+                        })
+                    }
+                    return example
+                }
+            })
+        }
+
+        function placelist() {
+            for (let i = 0; i < sample.length; i++) {
+                let content = sample[i]['content']
+                let place = sample[i]['plaename']
+                let temp_html = `<p>${place}</p>`
+                $('#testdiv').append(content)
+                $('#testdiv2').append(temp_html)
+            }
+        }
 
     </script>
 </head>
@@ -37,5 +101,7 @@ collabo first practice
 <form onsubmit="save_order(); return false"><input type="text" id='search'>
     <button>검색</button>
 </form>
+<div id="testdiv">안녕</div>
+<div id='testdiv2'></div>
 </body>
 </html>
