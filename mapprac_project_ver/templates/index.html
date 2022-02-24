@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="kr">
 <head>
     <meta charset="UTF-8">
     <!--    fontawesome cdn -->
     <!-- 카카오지도 API 인증키, 웹 플랫폼 도메인 등록 필수 -->
     <script type="text/javascript"
             src="//dapi.kakao.com/v2/maps/sdk.js?appkey=bc88227ccc4a489780b79312d7c1cbb5&libraries=services,clusterer,drawing"></script>
+    <link rel="stylesheet" href="/static/real.css">
     <title>토이프로젝트1</title>
-    <link rel="stylesheet" href="/static/style.css">
     <link href
                   ="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -21,11 +21,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
 
-        <!--    마커, 인포윈도우, 검색목록 옵션을 가질 객체 생성-->
-        let example = []
-
-        // 특정 지역의 장소 데이터를 카카오검색api를 통해 수집 및 객체 example에 할당하고 return
+        // 특정 지역의 장소 데이터를 카카오검색api를 통해 수집 및 객체 example에 할당
         function searchs() {
+            let example = []
             let search = $('#search').val()
             remover()
             $.ajax({
@@ -43,25 +41,21 @@
                             let placeName = rows[i].place_name
                             let phonenum = rows[i].phone
                             let address = rows[i].road_address_name
-                            let temp_html = `<tr id = 'clickbutton'>
-                                <td id = 'cafename'>${placeName}</td>
-                                <td>${phonenum}</td>
-                                <td class="addressbox">${address}</td>
-                            </tr>`
+                            let num = i
                             example.push({
                                 'region': search,
                                 'placename': placeName,
                                 'latlng': new kakao.maps.LatLng(index_y, index_x),
                                 'phone': phonenum,
                                 'address': address,
-                                'listitems': temp_html
-                            }) // 마커 생성시에 필요한 데이터들을 api에서 수집한 내용을 편집해서 example에 넣기.
-
+                                'num': i,
+                            })
                         }
-                        showmarker() // 검색을 끝내면, 해당 키워드에 마커와 infowindow, 검색목록을 나타내는 함수.
+                        showmarker(example) // 검색을 끝내면,  example을 활용해서 마커를 표출
                     }
                 }
             )
+            return example
         }
     </script>
 </head>
@@ -74,7 +68,7 @@
                 <path d="M1 2a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1h.5A1.5 1.5 0 0 1 16 4.5v7a1.5 1.5 0 0 1-1.5 1.5h-.55a2.5 2.5 0 0 1-2.45 2h-8A2.5 2.5 0 0 1 1 12.5V2zm13 10h.5a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.5-.5H14v8zM13 2H2v10.5A1.5 1.5 0 0 0 3.5 14h8a1.5 1.5 0 0 0 1.5-1.5V2z"/>
             </svg>
         </div>
-        <p class="titlename">
+        <p class="titlename" id='realname'>
             빠른 커피
         </p>
     </div>
@@ -89,7 +83,7 @@
         <div class="searchbar">
             <form onsubmit="searchbtn(); return false">
                 <input type="text" id='search' value="">
-                <button class='searchbtn'>검색</button>
+                <button class='searchbtn' id='black'>검색</button>
             </form>
             <div id='placelist' class="placelist">
                 <table class='table'>
@@ -109,6 +103,7 @@
     </div>
 </main>
 <script>
+
     //  여러 마커 생성 이벤트2: 마우스 오버 시 마커 사이즈 확장 + 클릭 시 마커 색상 및 사이즈 변경
     // 지도를 생성합니다
     var mapContainer = document.getElementById('map'), // 지도를 표시할 div
@@ -151,57 +146,99 @@
     var markerimage = new kakao.maps.MarkerImage(imgsrc, imgsize, imgOption)
     var markers = []
     var infowindows = []
+    var infowindow =
+        new kakao.maps.InfoWindow({})
 
 
     // api에서 받아온 데이터를 편집한 example[]을 활용해서 마커 생성.
     // example[] 활용해서 각 좌표의 장소명에 대한 infowindow 생성
     // 마우스 오버 시, 인포 윈도우 표시
     // position 값 할당해줄 때, value값이 전달될 수 있도록 객체 값 정리를 깔끔하게 해야함.
-    function showmarker() {
+    function showmarker(example) {
         for (let i = 0; i < example.length; i++) {
             let rows = example[i]
-            let x = rows['x']
-            let y = rows['y']
             let title = rows['placename']
             let phonenum = rows['phone']
             let address = rows['address']
+            let num = i
+            let title_html = `<td  id = 'clickprac(${num})'>${title}</td> `
+            let phone_html = `<td>${phonenum}</td>`
+            let address_html = `  <td class="addressbox">${address}</td>`
+
             var marker = new kakao.maps.Marker({
                 position: rows['latlng'],
                 image: markerimage,
+                num: i,
+                title: title_html
             })
             var iwcontents = '<div class = "contentbox">' + '<p class=" small">' + title + '</p>' + '<p class=" small">' + phonenum + '</p>' + '<p class=" small">' + address + '</p>' + '</div>'
-            var infowindow = new kakao.maps.InfoWindow({
-                content: iwcontents
-            })
+            var infowindow =
+                new kakao.maps.InfoWindow({
+                    content: iwcontents,
+                    num: i
+                })
+            let temp_html = `<tr class='cafename' onmouseover="listover(${num})" onmouseout="listout(${num})"> <!-- 마우스오버, 아웃 이벤트 생성 -->
+                                ${title_html} + ${phone_html} + ${address_html}
+                            </tr>`
+            $('#placeitems').append(temp_html)
             marker.setMap(map)
+
             kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow)) // for문을 닫고 infowindow 호출 함수를 작성해야, 모든 장소명이 잘 나타남.
-            kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow))
-            markers.push(marker)
-            infowindows.push(infowindow)
-        }
-
-        function makeOverListener(map, marker, infowindow) {
-            return function () {
-                infowindow.open(map, marker)
-            }
-        }
-
-        function makeOutListener(infowindow) {
-            return function () {
-                infowindow.close()
-            }
-        }
-
-        showplacelist() // 검색목록 생성 및 표출 함수
-    }
-
-    // example의 데이터를 받아와서 검색목록의 정보 생성
-    function showplacelist() {
-        for (let i = 0; i < example.length; i++) {
-            let listitem = example[i].listitems
-            $('#placeitems').append(listitem)
+            kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow)) // 마커에 마우스 오버/아웃 시에 인포윈도우 생성
+            markers.push(marker) // 마커를 다방면으로 활용하기 위해, markers라는 객체로 저장
+            infowindows.push(infowindow) // infowindow를 다방면으로 활용하기 위해, infowindows라는 객체로 저장
         }
     }
+
+
+    // 검색목록 각각에 지정한 마우스 오버/아웃 함수: markers, infowindows를 활용해서, 검색목록 마우스 오버 시, 인포윈도우가 마커위에 뜨게 하기
+    function listover(num) {
+        for (let i = 0; i < markers.length; i++) {
+            for (let i = 0; i < infowindows.length; i++) {
+                if (i === num) {
+                    let marker = markers[i]
+                    let infowindow = infowindows[i]
+                    openinfo(map, marker, infowindow)
+                }
+            }
+        }
+    }
+
+    function listout(num) {
+        for (let i = 0; i < markers.length; i++) {
+            for (let i = 0; i < infowindows.length; i++) {
+                if (i === num) {
+                    let marker = markers[i]
+                    let infowindow = infowindows[i]
+                    closeinfo(infowindow)
+                }
+            }
+        }
+    }
+
+    function makeOverListener(map, marker, infowindow) {
+        return function () {
+            openinfo(map, marker, infowindow)
+        }
+    }
+
+
+    function makeOutListener(infowindow) {
+        return function () {
+            closeinfo(infowindow)
+
+            }
+    }
+
+
+    function openinfo(map, marker, infowindow) {
+        infowindow.open(map, marker)
+    }
+
+    function closeinfo(infowindow) {
+        infowindow.close()
+    }
+
 
     function remover() { // 마커, 리스트 지우는 기능을 통합한 함수.
         removemarker()
@@ -220,12 +257,8 @@
         for (let i = 0; i < markers.length; i++) {
             markers[i].setMap(null)
         }
+
     }
-
-    // 코드 정리 (infowindow, marker 변수 지정하는 것 전부 다 맨 위로 옮겨버리기.)
-    // 카페명 오버 시, 인포윈도우 표시하기 or 카페명 클릭 시, 마커 크기 확장 + 인포윈도우 표출
-    // 지역 검색 버튼 누르면, 기존에 있던 마커와 검색목록 삭제 ---> kakao developer 확인하기
-
 </script>
 </body>
 </html>
