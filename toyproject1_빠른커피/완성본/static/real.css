@@ -1,0 +1,203 @@
+.title {
+    background-color: chocolate;
+    color: whitesmoke;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding: 10px 0;
+
+}
+
+.titlebox {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.titlebox > p {
+    font-size: 40px;
+    margin-bottom: 0;
+}
+
+.titlebox > .cup {
+    margin-right: 10px;
+}
+
+.warning{
+    font-size: 8px;
+    heigth: 50px;
+    width: 400px;
+    margin: 25px auto 0 auto;
+    align-items: center;
+}
+.warning > p{
+    margin: 0;
+}
+.sad{
+    text-align: center;
+}
+
+.red{
+    color: red;
+    font-weight: bold;
+
+}
+.green{
+    color: green;
+    font-weight: bold;
+}
+.blue{
+    color: blue;
+    font-weight: bold;
+}
+.gray{
+    color: gray;
+    font-weight: bold;
+}
+main {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.wrap {
+    border: 1px solid black;
+    width: 1000px;
+    height: 500px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    text-align: center;
+    padding-bottom: 50px;
+}
+
+.map {
+    width: 500px;
+    height: 438px;
+    margin: 10px 20px;
+    border: 1px solid black;
+}
+
+.others {
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+
+.others > button {
+    margin-right: 10px;
+}
+
+.searchbar {
+    border: 1px solid black;
+    margin-top: 10px;
+    padding: 10px;
+}
+
+.contentbox {
+    display: flex;
+    flex-direction: column;
+    font-size: 8px;
+    height: 60px;
+    text-align: left;
+    justify-content: center;
+}
+
+.infowindow_text {
+    font-size: 8px;
+    margin-bottom: 0;
+}
+
+#placelist {
+    width: 400px;
+    height: 400px;
+    overflow: scroll;
+    margin-top: 5px;
+}
+
+.table {
+    border: 1px solid black;
+    font-size: 8px;
+}
+
+.cafename {
+    cursor: pointer;
+    padding: 0 50px;
+}
+
+.cafename_cheap {
+    cursor: pointer;
+    padding: 0 50px;
+    color: blue;
+}
+
+.cafename_realcheap {
+    cursor: pointer;
+    padding: 0 50px;
+    color: green;
+}
+
+.cafename_expensive {
+    cursor: pointer;
+    padding: 0 50px;
+    color: red;
+}
+
+.cafename_nothing{
+    cursor: pointer;
+    padding: 0 50px;
+    color: gray;
+}
+
+.cafename_cheap:hover {
+    font-weight: bold;
+
+}
+
+.cafename_realcheap:hover {
+    font-weight: bold;
+
+}
+
+.cafename_nothing:hover{
+    font-weight: bold;
+}
+
+
+.cafename_expensive:hover {
+    font-weight: bold;
+}
+
+.list_title {
+    width: 20%;
+    border: 1px solid black;
+    align-items: center;
+}
+
+.list_menu {
+    width: 30%;
+    border: 1px solid black;
+    align-items: center;
+}
+
+.list_price {
+    width: 20%;
+    border: 1px solid black;
+    align-items: center;
+}
+
+.list_address {
+    width: 30%;
+    border: 1px solid black;
+    align-items: center;
+}
+
+#search{
+    width: 300px;
+}
+
+#search::placeholder{
+    size: 10px;
+    font-size: 10px;
+    font-weight: bold;
+}
