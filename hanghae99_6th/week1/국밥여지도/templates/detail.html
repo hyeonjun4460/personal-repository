@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <!--    fontawesome cdn -->
+    <!-- about css and styling -->
+    <link rel="stylesheet" href="/static/detail.css">
+    <link href
+                  ="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src
+                    ="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Nanum+Myeongjo&display=swap" rel="stylesheet">
+
+
+    <!-- 카카오지도 API 인증키, 웹 플랫폼 도메인 등록 필수 -->
+    <!-- 카카오지도 API 인증키, 웹 플랫폼 도메인 등록 필수 -->
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=bc88227ccc4a489780b79312d7c1cbb5&libraries=services,clusterer,drawing"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <title>국밥여지도</title>
+    <script>
+
+        $(document).ready(function () {
+            searchs()
+        })
+
+        function searchs() {
+            var gu_name = '순천시 연향동'
+
+            console.log("{{ menu }}")
+            var menu = `${gu_name} {{ menu }}`
+            console.log(menu)
+            let example = []
+            remover()
+            $.ajax({
+                    type: "GET",
+                    url: "https://dapi.kakao.com/v2/local/search/keyword",
+                    data: {
+                        query: menu
+                    },
+                    headers: {Authorization: 'KakaoAK e0a7933ed8d3e52e48f47999a8528bc7'},
+                    success: function (response) {
+                        console.log(response)
+                        let rows = response['documents']
+                        for (let i = 0; i < rows.length; i++) {
+                            let index_x = rows[i].x
+                            let index_y = rows[i].y
+                            let placeName = rows[i].place_name
+                            let phonenum = rows[i].phone
+                            let address = rows[i].road_address_name
+                            let num = i
+                            example.push({
+                                'placename': placeName,
+                                'x': index_x,
+                                'y': index_y,
+                                'latlng': new kakao.maps.LatLng(index_y, index_x),
+                                'phone': phonenum,
+                                'address': address,
+                                'num': i,
+                            })
+                        }
+                        currentlocation(example)
+                        showmarker(example) // 검색을 끝내면,  example을 활용해서 마커를 표출
+
+                    }
+                }
+            )
+            return example
+        }
+    </script>
+</head>
+<body>
+<header class="title">
+    <div class="titlebox">
+        <div class="cup">
+            <img class='picture' src="/static/free-icon-soup-5226437.png" alt="">
+        </div>
+        <p class="titlename" id='realname'>
+            국밥여지도
+        </p>
+    </div>
+</header>
+<div class="back">
+    <button class='back_button' onclick="window.location.href='/'"><i class="bi bi-box-arrow-left"></i>
+        <p>뒤로 가기</p></button>
+</div>
+<main>
+    <div class="wrap">
+        <div class="mapresult">
+            <div class="mapbox">
+                <!--  지도 컨테이너      -->
+                <div class='map' id='map'>
+                </div>
+            </div>
+            <div id='placelist' class="placelist">
+                <p id='explain_text'>우리 동네 <b>{{ menu }}</b> 집은?</p>
+                <table id='placetable' class='table'>
+                    <thead>
+                    <tr>
+                        <td>식당명</td>
+                        <td>연락처</td>
+                        <td>주소</td>
+                    </tr>
+                    </thead>
+                    <tbody id="placeitems">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+
+    //  여러 마커 생성 이벤트2: 마우스 오버 시 마커 사이즈 확장 + 클릭 시 마커 색상 및 사이즈 변경
+    // 지도를 생성합니다
+    // 지도를 표시할 div
+
+    var mapOption = {
+        center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+        level: 6
+    }// 지도의 확대 레벨
+    var mapContainer = document.getElementById('map')
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+
+
+    // 마커 이미지 설정
+    var imgsrc = 'https://cdn-icons-png.flaticon.com/128/6244/6244020.png'
+    var imgsize = new kakao.maps.Size(30, 30)
+    var imgOption = new kakao.maps.Point(15, 30)
+    var markerimage = new kakao.maps.MarkerImage(imgsrc, imgsize, imgOption)
+    var markers = []
+    var infowindows = []
+    var infowindow =
+        new kakao.maps.InfoWindow({})
+
+    function currentlocation(example) {
+        for (let i = 0; i < example.length; i++) {
+            let x = example[0].x
+            let y = example[0].y
+            var bounds = new kakao.maps.LatLngBounds();
+            bounds.extend(new kakao.maps.LatLng(y, x));
+            // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+            map.setBounds(bounds);
+            map.setLevel(6)
+        }
+    }
+
+    // api에서 받아온 데이터를 편집한 example[]을 활용해서 마커 생성.
+    // example[] 활용해서 각 좌표의 장소명에 대한 infowindow 생성
+    // 마우스 오버 시, 인포 윈도우 표시
+    // position 값 할당해줄 때, value값이 전달될 수 있도록 객체 값 정리를 깔끔하게 해야함.
+    function showmarker(example) {
+        let temp_html = ''
+        if (example.length === 0) {
+            $('#placetable').hide()
+            $('#explain_text').text(`우리 동네엔 {{menu}} 파는 식당이 없어요...`)
+
+
+        }
+        for (let i = 0; i < example.length; i++) {
+            let rows = example[i]
+            let title = rows['placename']
+            let phonenum = rows['phone']
+            let address = rows['address']
+            let num = i
+            let title_html = `<td  id = 'clickprac(${num})'>${title}</td> `
+            let phone_html = `<td>${phonenum}</td>`
+            let address_html = `  <td class="addressbox">${address}</td>`
+
+            var marker = new kakao.maps.Marker({
+                position: rows['latlng'],
+                image: markerimage,
+                num: i,
+                title: title_html
+            })
+            var iwcontents = '<div class = "contentbox">' + '<p class=" small">' + title + '</p>' + '<p class=" small">' + phonenum + '</p>' + '<p class=" small">' + address + '</p>' + '</div>'
+            var infowindow =
+                new kakao.maps.InfoWindow({
+                    content: iwcontents,
+                    num: i
+                })
+            temp_html = `<tr class='cafename' onmouseover="listover(${num})" onmouseout="listout(${num})"> <!-- 마우스오버, 아웃 이벤트 생성 -->
+                                ${title_html} + ${phone_html} + ${address_html}
+                            </tr>`
+            $('#placeitems').append(temp_html)
+            marker.setMap(map)
+
+            kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow)) // for문을 닫고 infowindow 호출 함수를 작성해야, 모든 장소명이 잘 나타남.
+            kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow)) // 마커에 마우스 오버/아웃 시에 인포윈도우 생성
+            markers.push(marker) // 마커를 다방면으로 활용하기 위해, markers라는 객체로 저장
+            infowindows.push(infowindow) // infowindow를 다방면으로 활용하기 위해, infowindows라는 객체로 저장
+        }
+    }
+
+
+    // 검색목록 각각에 지정한 마우스 오버/아웃 함수: markers, infowindows를 활용해서, 검색목록 마우스 오버 시, 인포윈도우가 마커위에 뜨게 하기
+    function listover(num) {
+        for (let i = 0; i < markers.length; i++) {
+            for (let i = 0; i < infowindows.length; i++) {
+                if (i === num) {
+                    let marker = markers[i]
+                    let infowindow = infowindows[i]
+                    openinfo(map, marker, infowindow)
+                }
+            }
+        }
+    }
+
+    function listout(num) {
+        for (let i = 0; i < markers.length; i++) {
+            for (let i = 0; i < infowindows.length; i++) {
+                if (i === num) {
+                    let marker = markers[i]
+                    let infowindow = infowindows[i]
+                    closeinfo(infowindow)
+                }
+            }
+        }
+    }
+
+    function makeOverListener(map, marker, infowindow) {
+        return function () {
+            openinfo(map, marker, infowindow)
+        }
+    }
+
+
+    function makeOutListener(infowindow) {
+        return function () {
+            closeinfo(infowindow)
+
+        }
+    }
+
+
+    function openinfo(map, marker, infowindow) {
+        infowindow.open(map, marker)
+    }
+
+    function closeinfo(infowindow) {
+        infowindow.close()
+    }
+
+
+    function remover() { // 마커, 리스트 지우는 기능을 통합한 함수.
+        removemarker()
+        removelists()
+        example = []
+        markers = []
+        infowindows = []
+    }
+
+    // 검색목록 제거 기능
+    function removelists() {
+        $('#placeitems').empty()
+
+    }
+
+    // 마커 제거 기능
+    function removemarker() {
+        for (let i = 0; i < markers.length; i++) {
+            markers[i].setMap(null)
+        }
+
+    }
+</script>
+</body>
+</html>
+

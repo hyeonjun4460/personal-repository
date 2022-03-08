@@ -1,0 +1,67 @@
+
+.title {
+    background-color: saddlebrown;
+    color: ivory;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding: 10px 0;
+    width: 100%;
+    height: 20%;
+    min-height: 100px;
+}
+
+.titlebox {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.picture {
+    width: 70px;
+    heigth: 70px;
+    margin-bottom: 10px
+}
+
+.titlebox > p {
+    font-size: 60px;
+    margin-bottom: 0;
+    font-family: 'Do Hyeon', sans-serif;
+}
+
+.titlebox > .cup {
+    margin-right: 10px;
+}
+
+body {
+    background-color: orange;
+}
+
+main {
+    width: 100%;
+    height: 20%;
+    margin-top: 50px;
+}
+
+.cards {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    min-height: 400px;
+    margin: 5% auto 5% auto;
+}
+
+.card-footer {
+    text-align: center;
+}
+
+.menuname {
+    text-decoration: none;
+    color: black
+}
+
+.menuname:hover {
+    font-weight: bold;
+    color: black;
+}
