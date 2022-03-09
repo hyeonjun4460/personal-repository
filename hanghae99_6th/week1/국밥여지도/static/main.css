@@ -3,7 +3,7 @@
     background-color: saddlebrown;
     color: ivory;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     text-align: center;
     padding: 10px 0;
     width: 100%;
@@ -11,10 +11,24 @@
     min-height: 100px;
 }
 
+.hello_text{
+    font-family: 'Yeon Sung', cursive;
+    margin-left: 1%;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    margin-right: 300px;
+}
+
+.hello_text > p{
+     text-align: left;
+    margin: 0;
+}
 .titlebox {
     display: flex;
     align-items: center;
     text-align: center;
+    margin-right: 500px;
 }
 
 .picture {
@@ -23,14 +37,37 @@
     margin-bottom: 10px
 }
 
-.titlebox > p {
+.titlebox > h1 {
     font-size: 60px;
     margin-bottom: 0;
-    font-family: 'Do Hyeon', sans-serif;
+    font-family: 'Yeon Sung', cursive;
 }
 
 .titlebox > .cup {
     margin-right: 10px;
+}
+
+.logoutbox {
+    display: flex;
+    align-items: center;
+    margin-right: 1%;
+}
+
+.logoutbtn {
+    background-color: transparent;
+    color: white;
+    border: 1px outset white;
+    border-radius: 50px;
+    font-family: 'Yeon Sung', cursive;
+    padding: 10px 20PX 10PX 20PX;
+}
+
+.logoutbtn:hover {
+    border: 1px solid white
+}
+
+.logoutbtn > p {
+    margin: 0
 }
 
 body {
@@ -65,3 +102,4 @@ main {
     font-weight: bold;
     color: black;
 }
+

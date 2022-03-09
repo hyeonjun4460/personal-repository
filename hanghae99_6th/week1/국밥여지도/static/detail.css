@@ -1,13 +1,34 @@
+
 .title {
     background-color: saddlebrown;
     color: ivory;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     text-align: center;
     padding: 10px 0;
     width: 100%;
     height: 20%;
     min-height: 100px;
+}
+
+.hello_text {
+    font-family: 'Yeon Sung', cursive;
+    font-size: 30px;
+    display: flex;
+    margin-left: 1%;
+    align-items: center;
+    margin-right: 300px;
+}
+
+.hello_text > p {
+    margin: 0;
+}
+
+.titlebox {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-right: 500px;
 }
 
 .picture {
@@ -16,20 +37,37 @@
     margin-bottom: 10px
 }
 
-.titlebox {
-    display: flex;
-    align-items: center;
-    text-align: center;
-}
-
-.titlebox > p {
+.titlebox > h1 {
     font-size: 60px;
     margin-bottom: 0;
-    font-family: 'Do Hyeon', sans-serif;
+    font-family: 'Yeon Sung', cursive;
 }
 
 .titlebox > .cup {
     margin-right: 10px;
+}
+
+.logoutbox {
+    display: flex;
+    align-items: center;
+    margin-right: 1%;
+}
+
+.logoutbtn {
+    background-color: transparent;
+    color: white;
+    border: 1px outset white;
+    border-radius: 50px;
+    font-family: 'Yeon Sung', cursive;
+    padding: 10px 20PX 10PX 20PX;
+}
+
+.logoutbtn:hover {
+    border: 1px solid white
+}
+
+.logoutbtn > p {
+    margin: 0
 }
 
 main {
@@ -39,11 +77,9 @@ main {
 }
 
 .wrap {
-    border: 1px solid black;
     width: 95%;
     height: 50%;
     display: flex;
-    flex-direction: column;
     text-align: center;
     margin-bottom: 50px;
 }
@@ -52,7 +88,6 @@ main {
     width: 40%;
     display: flex;
     flex-direction: column;
-    border: 1px outset black;
 }
 
 .map {
@@ -82,27 +117,19 @@ main {
     margin-bottom: 0;
 }
 
-.others {
-    display: flex;
-    justify-content: center;
-    flex-wrap: nowrap;
-}
-
-.others > button {
-    margin-right: 10px;
-}
-
-.searchbar {
-    border: 1px solid black;
-    margin-top: 10px;
-    padding: 10px;
-}
-
 .contentbox {
     display: flex;
     flex-direction: column;
+    font-size: 8px;
+    height: 60px;
+    text-align: left;
     justify-content: center;
-    align-items: center;
+    padding-left: 10px;
+}
+
+.infowindow_text {
+    font-size: 8px;
+    margin-bottom: 0;
 }
 
 .small {
@@ -129,4 +156,81 @@ main {
 
 .cafename:hover {
     font-weight: bold;
+}
+
+
+.review {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60%;
+}
+
+.showtable {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.table3{
+        border: 1px solid black;
+    font-size: 8px;
+
+}
+
+/*.table2 > thead > tr > td {*/
+/*    border: 1px outset black;*/
+/*}*/
+
+/*.table2 > tbody > tr > td {*/
+/*    border: 1px outset black;*/
+/*}*/
+
+.postbtn {
+    width: 60%;
+    margin-top: 10px;
+    background-color: transparent;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    border-radius: 50px;
+}
+
+.postbtn > button {
+    border-radius: 10px;
+    background-color: transparent;
+}
+
+.postbtn > button:hover {
+    font-weight: bold;
+}
+
+.posting-box {
+    width: 60%;
+    margin-top: 50px;
+}
+
+.savebtn {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.savebtn > button {
+    margin-top: 10px;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.savebtn > button:hover {
+    font-weight: bold;
+    border: 1px solid black;
+}
+
+.savebtn > button:first-child {
+    margin-left: 10px;
 }

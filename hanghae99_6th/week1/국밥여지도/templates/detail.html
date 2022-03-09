@@ -13,7 +13,8 @@
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
-<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Nanum+Myeongjo&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Nanum+Myeongjo&family=Yeon+Sung&display=swap"
+          rel="stylesheet">
 
 
     <!-- 카카오지도 API 인증키, 웹 플랫폼 도메인 등록 필수 -->
@@ -25,19 +26,81 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
             integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
             crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <title>국밥여지도</title>
     <script>
 
+        function logout() {
+            $.removeCookie('mytoken')
+            alert('로그아웃')
+            window.location.href = '/login'
+        }
+
         $(document).ready(function () {
+            $('#posting-box').hide()
             searchs()
+            show_recipe()
         })
 
-        function searchs() {
-            var gu_name = '순천시 연향동'
 
-            console.log("{{ menu }}")
-            var menu = `${gu_name} {{ menu }}`
-            console.log(menu)
+        {# 리뷰 POST 기능: 전달 데이터 => 코멘트, 닉네임, 메뉴 #}
+
+        function posting() {
+            let comment = $('#comment').val()
+            $.ajax({
+                type: "POST",
+                url: `/detail/{{ menu }}/recipe`,
+                data: {
+                    menu_give: "{{ menu }}",
+                    nick_give: "{{ nickname }}",
+                    comment_give: comment
+                },
+                success: function (response) {
+                    show_recipe()
+                }
+            })
+
+        }
+
+        function show_recipe() {
+            $('#recipeitems').empty()
+            $.ajax({
+                type: "GET",
+                url: `/detail/{{ menu }}/recipe`,
+                data: {},
+                success: function (response) {
+                    if (response['result'] === 'empty') {
+                        let temp_html = `아직 게시된 레시피가 없어요! 당신만의 특별한 {{ menu }} 레시피를 알려주세요!`
+                        $('#explain_norecipe').text(temp_html)
+
+                    } else if (response['result'] === 'success') {
+                        let rows = response['recipe_list']
+                        for (let i = 0; i < rows.length; i++) {
+                            let comment = rows[i]['comment_receive']
+                            let nick_receive = rows[i]['nick_receive']
+                            let temp_html = `<tr> <!-- 마우스오버, 아웃 이벤트 생성 -->
+                                <td>${nick_receive}</td>
+                                <td>${comment}</td>
+                            </tr>`
+                            $('#recipeitems').append(temp_html)
+                        }
+
+                    }
+                }
+            })
+            close_post()
+        }
+
+        function close_post() {
+            $('#posting-box').hide()
+        }
+
+        function open_post() {
+            $('#posting-box').show()
+        }
+
+        function searchs() {
+            var menu = `{{user_address}} {{ menu }}`
             let example = []
             remover()
             $.ajax({
@@ -48,7 +111,6 @@
                     },
                     headers: {Authorization: 'KakaoAK e0a7933ed8d3e52e48f47999a8528bc7'},
                     success: function (response) {
-                        console.log(response)
                         let rows = response['documents']
                         for (let i = 0; i < rows.length; i++) {
                             let index_x = rows[i].x
@@ -75,17 +137,26 @@
             )
             return example
         }
+
     </script>
 </head>
 <body>
 <header class="title">
+    <div class="hello_text">
+        <p><span style="color: cornflowerblue  ">{{ nickname }}</span>님 환영합니다!</p>
+    </div>
     <div class="titlebox">
         <div class="cup">
             <img class='picture' src="/static/free-icon-soup-5226437.png" alt="">
         </div>
-        <p class="titlename" id='realname'>
+        <h1 class="titlename" id='realname'>
             국밥여지도
-        </p>
+        </h1>
+    </div>
+    <div class="logoutbox">
+        <button class='logoutbtn' onclick="logout()">
+            <span>로 그 아 웃</span>
+        </button>
     </div>
 </header>
 <div class="back">
@@ -101,7 +172,7 @@
                 </div>
             </div>
             <div id='placelist' class="placelist">
-                <p id='explain_text'>우리 동네 <b>{{ menu }}</b> 집은?</p>
+                <p id='explain_text'></p>
                 <table id='placetable' class='table'>
                     <thead>
                     <tr>
@@ -113,6 +184,40 @@
                     <tbody id="placeitems">
                     </tbody>
                 </table>
+            </div>
+        </div>
+        <div class="review">
+            <!--국밥일지 title-->
+            <!-- 테이블-->
+            <div class="showtable">
+                <table id='placetable' class='table'>
+                    <thead>
+                    <tr>
+                        <td>닉네임</td>
+                        <td>나만의 레시피</td>
+                    </tr>
+                    </thead>
+                    <tbody id="recipeitems">
+                    </tbody>
+                </table>
+                <p id='explain_norecipe' style="text-align: left; font-size: 9px"></p>
+            </div>
+            <div class="postbtn">
+                <button onclick='open_post()'> 작성하기</button>
+            </div>
+
+            <!--인풋박스-->
+            <div id="posting-box" class="posting-box">
+                <!-- ##인풋박스 및 저장버튼 - 저장버튼 중간에 가게하는 방법 무엇일까여? 왜 안될까요? -->
+                <div class="form-group">
+                    <input class="form-control" id="comment" rows="3"
+                           placeholder="{{ menu }}에 대한 나만의 레시피를 알려주세요!">
+                </div>
+                <div class="savebtn">
+                    <button onclick="close_post()"> 닫기
+                    </button>
+                    <button onclick="posting()">등록</button>
+                </div>
             </div>
         </div>
     </div>
@@ -159,12 +264,15 @@
     // position 값 할당해줄 때, value값이 전달될 수 있도록 객체 값 정리를 깔끔하게 해야함.
     function showmarker(example) {
         let temp_html = ''
+
+        {# #}
         if (example.length === 0) {
             $('#placetable').hide()
-            $('#explain_text').text(`우리 동네엔 {{menu}} 파는 식당이 없어요...`)
-
-
+            $('#explain_text').text(`우리 동네엔 "{{menu}}" 파는 식당이 없어요...`)
+        } else {
+            $('#explain_text').text(`"{{ user_address }}" 에 있는 "{{ menu }}" 집은?`)
         }
+
         for (let i = 0; i < example.length; i++) {
             let rows = example[i]
             let title = rows['placename']
@@ -173,7 +281,7 @@
             let num = i
             let title_html = `<td  id = 'clickprac(${num})'>${title}</td> `
             let phone_html = `<td>${phonenum}</td>`
-            let address_html = `  <td class="addressbox">${address}</td>`
+            let address_html = `  <td>${address}</td>`
 
             var marker = new kakao.maps.Marker({
                 position: rows['latlng'],
@@ -181,7 +289,10 @@
                 num: i,
                 title: title_html
             })
-            var iwcontents = '<div class = "contentbox">' + '<p class=" small">' + title + '</p>' + '<p class=" small">' + phonenum + '</p>' + '<p class=" small">' + address + '</p>' + '</div>'
+            var iwcontents = `<div class = 'contentbox' style="width:100%; padding: 10px" >
+                                <p class = 'infowindow_text'>☑ 식당명: ${title}</p>
+                                <p class = 'infowindow_text'>☑ 주소: ${address}</p>
+                              </div>`
             var infowindow =
                 new kakao.maps.InfoWindow({
                     content: iwcontents,

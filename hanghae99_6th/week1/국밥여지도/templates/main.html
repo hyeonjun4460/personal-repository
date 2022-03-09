@@ -13,40 +13,58 @@
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
-<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Nanum+Myeongjo&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Nanum+Myeongjo&family=Yeon+Sung&display=swap"
+          rel="stylesheet">
 
 
     <!-- 카카오지도 API 인증키, 웹 플랫폼 도메인 등록 필수 -->
     <script type="text/javascript"
             src="//dapi.kakao.com/v2/maps/sdk.js?appkey=bc88227ccc4a489780b79312d7c1cbb5&libraries=services,clusterer,drawing"></script>
+
+    <!--    JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <title>국밥여지도</title>
+    <script>
+
+        function logout() {
+            $.removeCookie('mytoken')
+            alert('로그아웃')
+            window.location.href = '/login'
+        }
+    </script>
 </head>
 <body>
 <header class="title">
+    <div class="hello_text">
+        <p><span style="color: cornflowerblue  ">{{ nickname }}</span>님 환영합니다!</p>
+    </div>
     <div class="titlebox">
         <div class="cup">
             <img class='picture' src="/static/free-icon-soup-5226437.png" alt="">
         </div>
-        <p class="titlename" id='realname'>
+        <h1 class="titlename" id='realname'>
             국밥여지도
-        </p>
+        </h1>
+    </div>
+    <div class="logoutbox">
+        <button class='logoutbtn' onclick="logout()">
+            <span>로 그 아 웃</span>
+        </button>
     </div>
 </header>
 <main class='cards'>
-
     <div class="row row-cols-1 row-cols-md-4 g-4">
-        {% for menu in menus %}
+        {% for menu in menu_list %}
             <div class="col">
                 <div class="card h-80">
-                    <img src="/static/sdfsdfsdf.PNG" class="card-img-top" alt="...">
+                    <img src="{{ menu.img }}" class="card-img-top" alt="...">
                     <div class="card-footer">
-                        <a class='menuname' href="/detail/{{ menu }}">{{ menu }}</a>
+                        <a class='menuname' href="/detail/{{ menu.menu }}">{{ menu.menu }}</a>
                     </div>
                 </div>
             </div>
         {% endfor %}
-
     </div>
     </div>
 </main>
