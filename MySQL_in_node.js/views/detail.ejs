@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+      function update() {
+        const title = $("#title").val();
+        const description = $("#description").val();
+        const author = $('#author').val()
+        $.ajax({
+          type: "PATCH",
+          url: `/api/<%=results[0].id%>`,
+          data: {
+            title,
+            description,
+            author
+          },
+          success: function (response) {
+            alert(response.msg);
+            window.location.href = "/api";
+          },
+        });
+      }
+
+      function postDelete(){
+        $.ajax({
+          type: "DELETE",
+          url: `/api/<%=results[0].id%>`,
+          data: {
+          },
+          success: function (response) {
+            alert(response.msg);
+            window.location.href = "/api";
+          },
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <table>
+        <tr class = 'click'"> <!-- 게시물 클릭 시, 상세 게시물 페이지로 전환 -->
+        <td ><a href=/api/><%= results[0].title %></a></td>
+        <td ><a href=/api><%= results[0].description %></a></td>
+        <td ><a href=/api><%= results[0].name %></a></td>
+        <td ><a href=/api><%= results[0].profile %></a></td>
+        </tr>
+      </table>
+      <input type="" id="title" />
+      <input type="" id="description" />
+      <select id="author">
+        <% for (let i = 0; i < results2.length; i++) { %>
+          <% let name = results2[i].name%>
+          <% let id = results2[i].id%>
+        <option value="<%=id%>"><%=name%></option>
+        <% } %>
+      </select>
+      <button onclick="update()">submit</button>
+      <button onclick ="postDelete()">delete</button>
+  </body>
+</html>

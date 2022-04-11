@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+      function post() {
+        const title = $("#title").val();
+        const description = $("#description").val();
+        const author = $("#author").val();
+        $.ajax({
+          type: "POST",
+          url: `/api/create`,
+          data: {
+            title,
+            description,
+            author,
+          },
+          success: function (response) {
+            alert(response.msg);
+            window.location.href = "/api";
+          },
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <input type="" id="title" />
+    <input type="" id="description" />
+    <button onclick="post()">submit</button>
+    <select id="author">
+      <% for (let i = 0; i < results.length; i++) { %> <% let name =
+      results[i].name%> <% let id = results[i].id%>
+      <option value="<%=id%>"><%=name%></option>
+      <% } %>
+    </select>
+  </body>
+</html>

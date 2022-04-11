@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <table><% for (let i = 0; i < results.length; i++) { %>
+        <% let title = results[i].title %>
+        <% let desc = results[i].description %>
+        <% let id = results[i].id %>
+        <tr class = 'click'"> <!-- 게시물 클릭 시, 상세 게시물 페이지로 전환 -->
+        <td ><a href=/api/<%=id%>><%= title %></a></td>
+        </tr>
+        <% } %>
+      </table>
+      <a href="/api/create">create</a>
+  </body>
+</html>
